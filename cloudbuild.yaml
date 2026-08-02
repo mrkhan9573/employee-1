@@ -5,8 +5,8 @@ steps:
     args:
       - "-c"
       - |
-        pip install -r requirements.txt
-        export PYTHONPATH=$PWD
+        pip install --no-cache-dir -r requirements.txt
+        export PYTHONPATH=$$PWD
         python -m pytest tests/
 
   # Build Docker image
@@ -17,7 +17,7 @@ steps:
       - "us-central1-docker.pkg.dev/$PROJECT_ID/app1/employee-api:latest"
       - "."
 
-  # Push image
+  # Push Docker image
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
