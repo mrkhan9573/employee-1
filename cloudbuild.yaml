@@ -1,42 +1,42 @@
 steps:
-  # Step 1: Install dependencies and run tests
+  # Run tests
   - name: "python:3.12"
     entrypoint: "bash"
     args:
       - "-c"
       - |
-        pip install --no-cache-dir -r requirements.txt
+        pip install -r requirements.txt
         export PYTHONPATH=$PWD
         python -m pytest tests/
 
-  # Step 2: Build Docker image
+  # Build Docker image
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "build"
       - "-t"
-      - "us-central1-docker.pkg.dev/project-a8be22b6-39b8-45b6-887/app1/employee-api:$SHORT_SHA"
+      - "us-central1-docker.pkg.dev/$PROJECT_ID/app1/employee-api:latest"
       - "."
 
-  # Step 3: Push image to Artifact Registry
+  # Push image
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
-      - "us-central1-docker.pkg.dev/project-a8be22b6-39b8-45b6-887/app1/employee-api:$SHORT_SHA"
+      - "us-central1-docker.pkg.dev/$PROJECT_ID/app1/employee-api:latest"
 
-  # Step 4: Deploy to Cloud Run
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
+  # Deploy to Cloud Run
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: "gcloud"
     args:
       - "run"
       - "deploy"
       - "employee-api"
-      - "--image=us-central1-docker.pkg.dev/project-a8be22b6-39b8-45b6-887/app1/employee-api:$SHORT_SHA"
+      - "--image=us-central1-docker.pkg.dev/$PROJECT_ID/app1/employee-api:latest"
       - "--region=us-central1"
       - "--platform=managed"
       - "--allow-unauthenticated"
 
 images:
-  - "us-central1-docker.pkg.dev/project-a8be22b6-39b8-45b6-887/app1/employee-api:$SHORT_SHA"
+  - "us-central1-docker.pkg.dev/$PROJECT_ID/app1/employee-api:latest"
 
 options:
   logging: CLOUD_LOGGING_ONLY
