@@ -1,14 +1,15 @@
 steps:
-  # Install dependencies and run tests
+  # Step 1: Install dependencies and run tests
   - name: "python:3.12"
     entrypoint: "bash"
     args:
       - "-c"
       - |
-        pip install -r requirements.txt
-        pytest
+        pip install --no-cache-dir -r requirements.txt
+        export PYTHONPATH=$PWD
+        python -m pytest tests/
 
-  # Build Docker image
+  # Step 2: Build Docker image
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "build"
@@ -16,15 +17,15 @@ steps:
       - "us-central1-docker.pkg.dev/project-a8be22b6-39b8-45b6-887/app1/employee-api:$SHORT_SHA"
       - "."
 
-  # Push Docker image
+  # Step 3: Push image to Artifact Registry
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
       - "us-central1-docker.pkg.dev/project-a8be22b6-39b8-45b6-887/app1/employee-api:$SHORT_SHA"
 
-  # Deploy to Cloud Run
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-    entrypoint: gcloud
+  # Step 4: Deploy to Cloud Run
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
+    entrypoint: "gcloud"
     args:
       - "run"
       - "deploy"
