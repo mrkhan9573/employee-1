@@ -1,52 +1,40 @@
 from flask import Flask, jsonify
+import os
 
 app = Flask(__name__)
 
 employees = [
-    {
-        "id": 1,
-        "name": "John",
-        "department": "IT"
-    },
-    {
-        "id": 2,
-        "name": "David",
-        "department": "HR"
-    },
-    {
-        "id": 3,
-        "name": "Sara",
-        "department": "Finance"
-    }
+    {"id": 1, "name": "John", "department": "IT"},
+    {"id": 2, "name": "Sara", "department": "HR"},
+    {"id": 3, "name": "David", "department": "Finance"}
 ]
 
 @app.route("/")
 def home():
     return jsonify({
-        "message": "Employee Management API",
+        "application": "Employee API",
+        "version": "1.0",
         "status": "Running"
     })
 
 @app.route("/employees")
-def get_employees():
+def employees_list():
     return jsonify(employees)
 
 @app.route("/employees/<int:id>")
-def get_employee(id):
-    employee = next((e for e in employees if e["id"] == id), None)
+def employee(id):
+    emp = next((e for e in employees if e["id"] == id), None)
 
-    if employee:
-        return jsonify(employee)
+    if emp:
+        return jsonify(emp)
 
-    return jsonify({"message": "Employee not found"}), 404
+    return jsonify({"message": "Employee Not Found"}), 404
 
 
 @app.route("/health")
 def health():
-    return jsonify({
-        "status": "UP"
-    })
+    return jsonify({"status": "UP"})
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
